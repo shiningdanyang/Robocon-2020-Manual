@@ -46,11 +46,13 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
 
+UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart1;
+DMA_HandleTypeDef hdma_uart4_rx;
 DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
-uint32_t tracking;
+int tracking;
 double _roL_pit_speed;
 double _dir;
 double _motor1Speed;
@@ -60,6 +62,8 @@ double _motor4Speed;
 double maxSpeed = 100;
 double yawSpeed;
 double _controlSpeed;
+double rotateAngle;
+double rotateFactor = 0.001;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -71,14 +75,16 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
+static void MX_UART4_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#include "DNL_zmanual_Peripheral_UART.h"
-#include "DNL_zmanual_Peripheral_MotorControl.h"
+#include <DNL_zmanual_UART.h>
+#include "DNL_zmanual_Motor.h"
+#include <DNL_zmanual_PID.h>
 /* USER CODE END 0 */
 
 /**
@@ -115,33 +121,73 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM5_Init();
+  MX_UART4_Init();
   /* USER CODE BEGIN 2 */
   peripheralUART_Init();
   peripheralPWM_Init();
+  compassReset();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  yawSpeed = 0.25*joyRigtHor;
-	_dir = atan2(joyLeftHor, joyLeftVer);
-//	_roL_pit_speed = sqrt(roLPID*roLPID + pitPID*pitPID);
-//	_dir = atan2(pitPID, roLPID);
-	_controlSpeed = sqrt(joyLeftHor*joyLeftHor + joyLeftVer*joyLeftVer);
-//	_motor1Speed = yawSpeed + -(0.5*_controlSpeed *sin(_dir + M_PI/4) + 0);
-//	_motor2Speed = yawSpeed + -(0.5*_controlSpeed *cos(_dir + M_PI/4) - 0);
-//	_motor3Speed = yawSpeed +   0.5*_controlSpeed *sin(_dir + M_PI/4) + 0;
-//	_motor4Speed = yawSpeed +   0.5*_controlSpeed *cos(_dir + M_PI/4) - 0;
-	_motor1Speed = yawSpeed + (0.3*_controlSpeed *cos(3*M_PI/4 - _dir) + 0);
-	_motor2Speed = yawSpeed + (0.3*_controlSpeed *cos(3*M_PI/4 + _dir) - 0);
-	_motor3Speed = yawSpeed +   0.3*_controlSpeed *cos(  M_PI/4 + _dir) + 0;
-	_motor4Speed = yawSpeed +   0.3*_controlSpeed *cos(  M_PI/4 - _dir) - 0;
+//	rotateAngle = rotateAngle - rotateFactor*joyRigtHor;
+//	PIDyaw(compassData, rotateAngle);
+//	yawPID = 0.25*joyRigtHor;
+//
+//
+//	_dir = atan2(joyLeftHor, joyLeftVer);
+//	_controlSpeed = sqrt(joyLeftHor*joyLeftHor + joyLeftVer*joyLeftVer);
+//	_motor1Speed = yawPID + (0.7*_controlSpeed *cos(3*M_PI/4 - _dir) + 0);
+//	_motor2Speed = yawPID + (0.7*_controlSpeed *cos(3*M_PI/4 + _dir) - 0);
+//	_motor3Speed = yawPID +  0.7*_controlSpeed *cos(  M_PI/4 + _dir) + 0;
+//	_motor4Speed = yawPID +  0.7*_controlSpeed *cos(  M_PI/4 - _dir) - 0;
+//
+//	controlMotor1(_motor1Speed);
+//	controlMotor2(_motor2Speed);
+//	controlMotor3(_motor3Speed);
+//	controlMotor4(_motor4Speed);
+//	tracking++;
+//
+//
 
-	controlMotor1(_motor1Speed);
-	controlMotor2(_motor2Speed);
-	controlMotor3(_motor3Speed);
-	controlMotor4(_motor4Speed);
+
+/////////////////////////////////////////////////
+	for(int i = 0; i>-255;--i)
+	{
+		controlMotor1(i);
+		controlMotor2(i);
+		controlMotor3(i);
+		controlMotor4(i);
+		HAL_Delay(20);
+		tracking=i;
+	}
+	for(int i = -255; i<255;++i)
+	{
+		controlMotor1(i);
+		controlMotor2(i);
+		controlMotor3(i);
+		controlMotor4(i);
+		HAL_Delay(20);
+		tracking=i;
+	}
+	for(int i = 255; i>0;--i)
+	{
+		controlMotor1(i);
+		controlMotor2(i);
+		controlMotor3(i);
+		controlMotor4(i);
+		HAL_Delay(20);
+		tracking=i;
+	}
+//	  		controlMotor1(100);
+//	  		controlMotor2(100);
+//	  		controlMotor3(100);
+//	  		controlMotor4(100);
+//	  		tracking++;
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -429,6 +475,39 @@ static void MX_TIM5_Init(void)
 }
 
 /**
+  * @brief UART4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_UART4_Init(void)
+{
+
+  /* USER CODE BEGIN UART4_Init 0 */
+
+  /* USER CODE END UART4_Init 0 */
+
+  /* USER CODE BEGIN UART4_Init 1 */
+
+  /* USER CODE END UART4_Init 1 */
+  huart4.Instance = UART4;
+  huart4.Init.BaudRate = 115200;
+  huart4.Init.WordLength = UART_WORDLENGTH_8B;
+  huart4.Init.StopBits = UART_STOPBITS_1;
+  huart4.Init.Parity = UART_PARITY_NONE;
+  huart4.Init.Mode = UART_MODE_TX_RX;
+  huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart4.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN UART4_Init 2 */
+
+  /* USER CODE END UART4_Init 2 */
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -469,8 +548,12 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA2_CLK_ENABLE();
+  __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
+  /* DMA1_Stream2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
   /* DMA2_Stream2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
@@ -489,6 +572,7 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */

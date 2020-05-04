@@ -40,8 +40,8 @@ zmanual.bin \
 all: zmanual.elf secondary-outputs
 
 # Tool invocations
-zmanual.elf: $(OBJS) $(USER_OBJS) D:\STM32CubeIDE_DefaultWorkspace\zmanual\STM32F407VETX_FLASH.ld
-	arm-none-eabi-gcc -o "zmanual.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\STM32CubeIDE_DefaultWorkspace\zmanual\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="zmanual.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+zmanual.elf: $(OBJS) $(USER_OBJS) D:\STM32CubeIDE_DefaultWorkspace\OFFICIAL_SRC\Robocon-2020-Manual\zmanual\STM32F407VETX_FLASH.ld
+	arm-none-eabi-gcc -o "zmanual.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\STM32CubeIDE_DefaultWorkspace\OFFICIAL_SRC\Robocon-2020-Manual\zmanual\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="zmanual.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -32,10 +32,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-int16_t joyLeftMidVer = 132;
-int16_t joyLeftMidHor = 123;
-int16_t joyRigtMidVer = 123;
-int16_t joyRigtMidHor = 132;
+extern int16_t joyLeftMidVer;
+extern int16_t joyLeftMidHor;
+extern int16_t joyRigtMidVer;
+extern int16_t joyRigtMidHor;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -47,12 +47,19 @@ int16_t joyRigtMidHor = 132;
 /* USER CODE BEGIN PV */
 extern uint8_t PS2RxPacket[8];
 extern uint8_t PS2CheckbyteCount, PS2Data[6], PS2DataIndex;
-extern int16_t PS2Button, PS2JoyLeft, PS2JoyRigt;
-extern char* controlData;
+extern int16_t PS2Button;
+//extern char* controlData;
 extern int16_t joyLeftHor;
 extern int16_t joyLeftVer;
 extern int16_t joyRigtHor;
 extern int16_t joyRigtVer;
+extern void PS2DMA_ProcessingData(void);
+
+extern void compassDecode(void);
+extern void compassRequest(void);
+extern uint8_t compassGetDataPeriod;
+extern uint8_t compassRxPacket[2];
+extern int16_t compassData;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -66,7 +73,9 @@ extern int16_t joyRigtVer;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef hdma_uart4_rx;
 extern DMA_HandleTypeDef hdma_usart1_rx;
+extern UART_HandleTypeDef huart4;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -192,7 +201,15 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-
+	  if(compassGetDataPeriod > 5)
+	  {
+		  compassGetDataPeriod = 0;
+		  compassRequest();
+	  }
+	  else
+	  {
+		  compassGetDataPeriod++;
+	  }
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
@@ -208,33 +225,41 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 stream2 global interrupt.
+  */
+void DMA1_Stream2_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream2_IRQn 0 */
+	compassDecode();
+//	compassData = (compassRxPacket[0]<<8)|compassRxPacket[1];
+  /* USER CODE END DMA1_Stream2_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_uart4_rx);
+  /* USER CODE BEGIN DMA1_Stream2_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles UART4 global interrupt.
+  */
+void UART4_IRQHandler(void)
+{
+  /* USER CODE BEGIN UART4_IRQn 0 */
+
+  /* USER CODE END UART4_IRQn 0 */
+  HAL_UART_IRQHandler(&huart4);
+  /* USER CODE BEGIN UART4_IRQn 1 */
+
+  /* USER CODE END UART4_IRQn 1 */
+}
+
+/**
   * @brief This function handles DMA2 stream2 global interrupt.
   */
 void DMA2_Stream2_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Stream2_IRQn 0 */
-	if(PS2CheckbyteCount == 4 )
-	{
-	  PS2Data[PS2DataIndex++] = PS2RxPacket[0];
-		if(PS2DataIndex > 5)
-		{
-			PS2DataIndex = 0;
-			PS2CheckbyteCount = 0;
-			PS2Button = (PS2Data[0]<<8) | PS2Data[1];
-			PS2JoyRigt = (PS2Data[2]<<8) | PS2Data[3];
-			PS2JoyLeft = (PS2Data[4]<<8) | PS2Data[5];
-			joyRigtHor = PS2Data[2] - joyRigtMidHor;
-			joyRigtVer = PS2Data[3] - joyRigtMidVer;
-			joyLeftHor = PS2Data[4] - joyLeftMidHor;
-			joyLeftVer = PS2Data[5] - joyLeftMidVer;
-
-		}
-	}
-	if(PS2RxPacket[0] == 0xAA)
-		PS2CheckbyteCount++;
-	else
-		if(PS2CheckbyteCount != 4)
-			PS2CheckbyteCount = 0;
+	PS2DMA_ProcessingData();
   /* USER CODE END DMA2_Stream2_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_usart1_rx);
   /* USER CODE BEGIN DMA2_Stream2_IRQn 1 */
