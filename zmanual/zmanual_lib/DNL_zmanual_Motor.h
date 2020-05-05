@@ -39,14 +39,14 @@ double speed;
 #define deg2Rad(angleInDegrees) ((angleInDegrees) * M_PI / 180.0)
 #define rad2Deg(angleInRadians) ((angleInRadians) * 180.0 / M_PI)
 
-#define motor1 htim2
-#define motor2 htim3
-#define motor3 htim4
-#define motor4 htim5
+#define motor1 htim8
+#define motor2 htim8
+#define motor3 htim1
+#define motor4 htim1
 #define motor1_channel TIM_CHANNEL_1
-#define motor2_channel TIM_CHANNEL_1
-#define motor3_channel TIM_CHANNEL_1
-#define motor4_channel TIM_CHANNEL_1
+#define motor2_channel TIM_CHANNEL_2
+#define motor3_channel TIM_CHANNEL_3
+#define motor4_channel TIM_CHANNEL_4
 
 #define FCW GPIO_PIN_RESET
 #define CCW GPIO_PIN_SET
@@ -138,6 +138,7 @@ void testPWM(void)
 	  controlMotor3(i);
 	  controlMotor4(i);
 	  HAL_Delay(20);
+	  tracking++;
   }
   for(int i = -255; i < 0; ++i)
   {
@@ -146,6 +147,7 @@ void testPWM(void)
 	  controlMotor3(i);
 	  controlMotor4(i);
 	  HAL_Delay(20);
+	  tracking++;
   }
   for(int i = 1 ; i < 255; ++i)
   {
@@ -154,6 +156,7 @@ void testPWM(void)
 	  controlMotor3(i);
 	  controlMotor4(i);
 	  HAL_Delay(20);
+	  tracking++;
   }
   for(int i = 255; i > 0; --i)
   {
@@ -162,5 +165,6 @@ void testPWM(void)
 	  controlMotor3(i);
 	  controlMotor4(i);
 	  HAL_Delay(20);
+	  tracking++;
   }
 }
