@@ -60,6 +60,12 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define handPul_Pin GPIO_PIN_12
+#define handPul_GPIO_Port GPIOB
+#define handDir_Pin GPIO_PIN_13
+#define handDir_GPIO_Port GPIOB
+#define handEn_Pin GPIO_PIN_14
+#define handEn_GPIO_Port GPIOB
 #define motor1Dir_Pin GPIO_PIN_0
 #define motor1Dir_GPIO_Port GPIOD
 #define motor2Dir_Pin GPIO_PIN_1

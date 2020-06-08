@@ -6,8 +6,8 @@
 
 int16_t yawError, yawPreError;
 double yawP, yawI, yawD;
-double yawKp = 0.7;
-double yawKd = 0;
+double yawKp = 0.05;
+double yawKd = 20;
 double yawKi = 0.0000000001;
 double yawPID;
 #define MAX_YAW_PID 100 // 50// 70 //85

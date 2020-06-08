@@ -6,6 +6,8 @@ int16_t joyLeftVer;
 int16_t joyRigtHor;
 int16_t joyRigtVer;
 
+double factorSpeed = 2.5;
+double factorYawPID = 1.5;
 double angle;
 double speed;
 
@@ -90,7 +92,18 @@ void controlMotor1(int _speed)
 	{
 		HAL_GPIO_WritePin(motor1Dir_GPIO_Port, motor1Dir_Pin, FCW);
 	}
-	__HAL_TIM_SetCompare(&motor1, TIM_CHANNEL_1, abs(_speed));
+	if((_speed <= 3)&&(_speed >= -3))
+		_speed = 3;
+	if(_speed > 250)
+	{
+		_speed = 250;
+	}
+	if(_speed < -250)
+	{
+		_speed = -250;
+	}
+	debugSpeed1 = abs(_speed);
+	__HAL_TIM_SetCompare(&motor1, motor1_channel, abs(_speed));
 }
 void controlMotor2(int _speed)
 {
@@ -102,7 +115,18 @@ void controlMotor2(int _speed)
 	{
 		HAL_GPIO_WritePin(motor2Dir_GPIO_Port, motor2Dir_Pin, FCW);
 	}
-	__HAL_TIM_SetCompare(&motor2, TIM_CHANNEL_1, abs(_speed));
+	if((_speed <= 3)&&(_speed >= -3))
+			_speed = 3;
+	if(_speed > 250)
+	{
+		_speed = 250;
+	}
+	if(_speed < -250)
+	{
+		_speed = -250;
+	}
+	debugSpeed2 = abs(_speed);
+	__HAL_TIM_SetCompare(&motor2, motor2_channel, abs(_speed));
 }
 void controlMotor3(int _speed)
 {
@@ -114,7 +138,18 @@ void controlMotor3(int _speed)
 	{
 		HAL_GPIO_WritePin(motor3Dir_GPIO_Port, motor3Dir_Pin, FCW);
 	}
-	__HAL_TIM_SetCompare(&motor3, TIM_CHANNEL_1, abs(_speed));
+	if((_speed <= 3)&&(_speed >= -3))
+				_speed = 3;
+	if(_speed > 250)
+	{
+		_speed = 250;
+	}
+	if(_speed < -250)
+	{
+		_speed = -250;
+	}
+	debugSpeed3 = abs(_speed);
+	__HAL_TIM_SetCompare(&motor3, motor3_channel, abs(_speed));
 }
 void controlMotor4(int _speed)
 {
@@ -126,7 +161,18 @@ void controlMotor4(int _speed)
 	{
 		HAL_GPIO_WritePin(motor4Dir_GPIO_Port, motor4Dir_Pin, FCW);
 	}
-	__HAL_TIM_SetCompare(&motor4, TIM_CHANNEL_1, abs(_speed));
+	if((_speed <= 3)&&(_speed >= -3))
+		_speed = 3;
+	if(_speed > 250)
+	{
+		_speed = 250;
+	}
+	if(_speed < -250)
+	{
+		_speed = -250;
+	}
+	debugSpeed4 = abs(_speed);
+	__HAL_TIM_SetCompare(&motor4, motor4_channel, abs(_speed));
 }
 
 void testPWM(void)

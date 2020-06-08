@@ -42,6 +42,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim5;
 TIM_HandleTypeDef htim8;
 
 UART_HandleTypeDef huart4;
@@ -62,6 +63,10 @@ double yawSpeed;
 double _controlSpeed;
 double rotateAngle;
 double rotateFactor = 0.001;
+double debugSpeed1;
+double debugSpeed2;
+double debugSpeed3;
+double debugSpeed4;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -72,14 +77,17 @@ static void MX_USART1_UART_Init(void);
 static void MX_UART4_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM8_Init(void);
+static void MX_TIM5_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#include "DNL_zmanual_Debug.h"
 #include "DNL_zmanual_UART.h"
 #include "DNL_zmanual_Motor.h"
+#include "DNL_zmanual_Hand.h"
 #include "DNL_zmanual_PID.h"
 /* USER CODE END 0 */
 
@@ -116,9 +124,11 @@ int main(void)
   MX_UART4_Init();
   MX_TIM1_Init();
   MX_TIM8_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
   peripheralUART_Init();
   peripheralPWM_Init();
+  handControl_Init();
   compassReset();
   /* USER CODE END 2 */
 
@@ -126,62 +136,36 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	rotateAngle = rotateAngle - rotateFactor*joyRigtHor;
-//	PIDyaw(compassData, rotateAngle);
-//	yawPID = 0.25*joyRigtHor;
+	  testPWM();
+//	if(joyRigtHor == 0)
+//	{
 //
-//
-//	_dir = atan2(joyLeftHor, joyLeftVer);
-//	_controlSpeed = sqrt(joyLeftHor*joyLeftHor + joyLeftVer*joyLeftVer);
-//	_motor1Speed = yawPID + (0.7*_controlSpeed *cos(3*M_PI/4 - _dir) + 0);
-//	_motor2Speed = yawPID + (0.7*_controlSpeed *cos(3*M_PI/4 + _dir) - 0);
-//	_motor3Speed = yawPID +  0.7*_controlSpeed *cos(  M_PI/4 + _dir) + 0;
-//	_motor4Speed = yawPID +  0.7*_controlSpeed *cos(  M_PI/4 - _dir) - 0;
-//
-//	controlMotor1(_motor1Speed);
-//	controlMotor2(_motor2Speed);
-//	controlMotor3(_motor3Speed);
-//	controlMotor4(_motor4Speed);
-//	tracking++;
-//
-//
-
-
-/////////////////////////////////////////////////
-	for(int i = 0; i>-255;--i)
-	{
-		controlMotor1(i);
-		controlMotor2(i);
-		controlMotor3(i);
-		controlMotor4(i);
-		HAL_Delay(20);
-		tracking=i;
-	}
-	for(int i = -255; i<255;++i)
-	{
-		controlMotor1(i);
-		controlMotor2(i);
-		controlMotor3(i);
-		controlMotor4(i);
-		HAL_Delay(20);
-		tracking=i;
-	}
-	for(int i = 255; i>0;--i)
-	{
-		controlMotor1(i);
-		controlMotor2(i);
-		controlMotor3(i);
-		controlMotor4(i);
-		HAL_Delay(20);
-		tracking=i;
-	}
-//	  		controlMotor1(100);
-//	  		controlMotor2(100);
-//	  		controlMotor3(100);
-//	  		controlMotor4(100);
-//	  		tracking++;
-
-
+//		PIDyaw(compassData, rotateAngle);
+//		_dir = atan2(joyLeftHor, joyLeftVer);
+//		_controlSpeed = sqrt(joyLeftHor*joyLeftHor + joyLeftVer*joyLeftVer);
+//		_motor1Speed = yawPID*factorYawPID + (factorSpeed*_controlSpeed *cos(3*M_PI/4 - _dir) + 0);
+//		_motor2Speed = yawPID*factorYawPID + (factorSpeed*_controlSpeed *cos(3*M_PI/4 + _dir) - 0);
+//		_motor3Speed = yawPID*factorYawPID +  factorSpeed*_controlSpeed *cos(  M_PI/4 + _dir) + 0;
+//		_motor4Speed = yawPID*factorYawPID +  factorSpeed*_controlSpeed *cos(  M_PI/4 - _dir) - 0;
+//		controlMotor1(_motor1Speed);
+//		controlMotor2(_motor2Speed);
+//		controlMotor3(_motor3Speed);
+//		controlMotor4(_motor4Speed);
+//	}
+//	else
+//	{
+//		_dir = atan2(joyLeftHor, joyLeftVer);
+//		_controlSpeed = sqrt(joyLeftHor*joyLeftHor + joyLeftVer*joyLeftVer);
+//		_motor1Speed = joyRigtHor*1.0 + (factorSpeed*_controlSpeed *cos(3*M_PI/4 - _dir) + 0);
+//		_motor2Speed = joyRigtHor*1.0 + (factorSpeed*_controlSpeed *cos(3*M_PI/4 + _dir) - 0);
+//		_motor3Speed = joyRigtHor*1.0 +  factorSpeed*_controlSpeed *cos(  M_PI/4 + _dir) + 0;
+//		_motor4Speed = joyRigtHor*1.0 +  factorSpeed*_controlSpeed *cos(  M_PI/4 - _dir) - 0;
+//		controlMotor1(_motor1Speed);
+//		controlMotor2(_motor2Speed);
+//		controlMotor3(_motor3Speed);
+//		controlMotor4(_motor4Speed);
+//		rotateAngle = compassData;
+//	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -307,6 +291,51 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 2 */
   HAL_TIM_MspPostInit(&htim1);
+
+}
+
+/**
+  * @brief TIM5 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM5_Init(void)
+{
+
+  /* USER CODE BEGIN TIM5_Init 0 */
+
+  /* USER CODE END TIM5_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM5_Init 1 */
+
+  /* USER CODE END TIM5_Init 1 */
+  htim5.Instance = TIM5;
+  htim5.Init.Prescaler = 839;
+  htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim5.Init.Period = 1000;
+  htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim5.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim5) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim5, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim5, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM5_Init 2 */
+
+  /* USER CODE END TIM5_Init 2 */
 
 }
 
@@ -486,13 +515,23 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, handPul_Pin|handDir_Pin|handEn_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, motor1Dir_Pin|motor2Dir_Pin|motor3Dir_Pin|motor4Dir_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : handPul_Pin handDir_Pin handEn_Pin */
+  GPIO_InitStruct.Pin = handPul_Pin|handDir_Pin|handEn_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : motor1Dir_Pin motor2Dir_Pin motor3Dir_Pin motor4Dir_Pin */
   GPIO_InitStruct.Pin = motor1Dir_Pin|motor2Dir_Pin|motor3Dir_Pin|motor4Dir_Pin;
