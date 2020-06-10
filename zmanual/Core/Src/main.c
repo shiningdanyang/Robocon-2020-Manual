@@ -136,36 +136,36 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  testPWM();
-//	if(joyRigtHor == 0)
-//	{
-//
-//		PIDyaw(compassData, rotateAngle);
-//		_dir = atan2(joyLeftHor, joyLeftVer);
-//		_controlSpeed = sqrt(joyLeftHor*joyLeftHor + joyLeftVer*joyLeftVer);
-//		_motor1Speed = yawPID*factorYawPID + (factorSpeed*_controlSpeed *cos(3*M_PI/4 - _dir) + 0);
-//		_motor2Speed = yawPID*factorYawPID + (factorSpeed*_controlSpeed *cos(3*M_PI/4 + _dir) - 0);
-//		_motor3Speed = yawPID*factorYawPID +  factorSpeed*_controlSpeed *cos(  M_PI/4 + _dir) + 0;
-//		_motor4Speed = yawPID*factorYawPID +  factorSpeed*_controlSpeed *cos(  M_PI/4 - _dir) - 0;
-//		controlMotor1(_motor1Speed);
-//		controlMotor2(_motor2Speed);
-//		controlMotor3(_motor3Speed);
-//		controlMotor4(_motor4Speed);
-//	}
-//	else
-//	{
-//		_dir = atan2(joyLeftHor, joyLeftVer);
-//		_controlSpeed = sqrt(joyLeftHor*joyLeftHor + joyLeftVer*joyLeftVer);
-//		_motor1Speed = joyRigtHor*1.0 + (factorSpeed*_controlSpeed *cos(3*M_PI/4 - _dir) + 0);
-//		_motor2Speed = joyRigtHor*1.0 + (factorSpeed*_controlSpeed *cos(3*M_PI/4 + _dir) - 0);
-//		_motor3Speed = joyRigtHor*1.0 +  factorSpeed*_controlSpeed *cos(  M_PI/4 + _dir) + 0;
-//		_motor4Speed = joyRigtHor*1.0 +  factorSpeed*_controlSpeed *cos(  M_PI/4 - _dir) - 0;
-//		controlMotor1(_motor1Speed);
-//		controlMotor2(_motor2Speed);
-//		controlMotor3(_motor3Speed);
-//		controlMotor4(_motor4Speed);
-//		rotateAngle = compassData;
-//	}
+//	  testPWM();
+	if(joyRigtHor == 0)
+	{
+
+		PIDyaw(compassData, rotateAngle);
+		_dir = atan2(joyLeftHor, -joyLeftVer);
+		_controlSpeed = sqrt(joyLeftHor*joyLeftHor + joyLeftVer*joyLeftVer);
+		_motor1Speed = yawPID*factorYawPID + (factorSpeed*_controlSpeed *cos(3*M_PI/4 - _dir) + 0);
+		_motor2Speed = yawPID*factorYawPID + (factorSpeed*_controlSpeed *cos(3*M_PI/4 + _dir) - 0);
+		_motor3Speed = yawPID*factorYawPID +  factorSpeed*_controlSpeed *cos(  M_PI/4 + _dir) + 0;
+		_motor4Speed = yawPID*factorYawPID +  factorSpeed*_controlSpeed *cos(  M_PI/4 - _dir) - 0;
+		controlMotor1(_motor1Speed);
+		controlMotor2(_motor2Speed);
+		controlMotor3(_motor3Speed);
+		controlMotor4(_motor4Speed);
+	}
+	else
+	{
+		_dir = atan2(joyLeftHor, -joyLeftVer);
+		_controlSpeed = sqrt(joyLeftHor*joyLeftHor + joyLeftVer*joyLeftVer);
+		_motor1Speed = joyRigtHor*1.0 + (factorSpeed*_controlSpeed *cos(3*M_PI/4 - _dir) + 0);
+		_motor2Speed = joyRigtHor*1.0 + (factorSpeed*_controlSpeed *cos(3*M_PI/4 + _dir) - 0);
+		_motor3Speed = joyRigtHor*1.0 +  factorSpeed*_controlSpeed *cos(  M_PI/4 + _dir) + 0;
+		_motor4Speed = joyRigtHor*1.0 +  factorSpeed*_controlSpeed *cos(  M_PI/4 - _dir) - 0;
+		controlMotor1(_motor1Speed);
+		controlMotor2(_motor2Speed);
+		controlMotor3(_motor3Speed);
+		controlMotor4(_motor4Speed);
+		rotateAngle = compassData;
+	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -515,16 +515,26 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, gripper_Pin|door_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, handPul_Pin|handDir_Pin|handEn_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, motor1Dir_Pin|motor2Dir_Pin|motor3Dir_Pin|motor4Dir_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : gripper_Pin door_Pin */
+  GPIO_InitStruct.Pin = gripper_Pin|door_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : handPul_Pin handDir_Pin handEn_Pin */
   GPIO_InitStruct.Pin = handPul_Pin|handDir_Pin|handEn_Pin;
@@ -533,12 +543,24 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : switchOut_Pin */
+  GPIO_InitStruct.Pin = switchOut_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(switchOut_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pins : motor1Dir_Pin motor2Dir_Pin motor3Dir_Pin motor4Dir_Pin */
   GPIO_InitStruct.Pin = motor1Dir_Pin|motor2Dir_Pin|motor3Dir_Pin|motor4Dir_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : switchIn_Pin */
+  GPIO_InitStruct.Pin = switchIn_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(switchIn_GPIO_Port, &GPIO_InitStruct);
 
 }
 

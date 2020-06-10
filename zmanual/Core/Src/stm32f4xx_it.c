@@ -53,6 +53,9 @@ extern int16_t joyLeftHor;
 extern int16_t joyLeftVer;
 extern int16_t joyRigtHor;
 extern int16_t joyRigtVer;
+extern uint8_t btn_leftLeft, btn_leftRigt, btn_leftUp, btn_leftDown;
+extern uint8_t btn_Sta, btn_joyLeft, btn_joyRigt, btn_Sel;
+extern uint8_t btn_A, btn_X, btn_D, btn_W, btn_E, btn_Q, btn_C, btn_Z;
 extern void PS2DMA_ProcessingData(void);
 
 extern void compassDecode(void);

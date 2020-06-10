@@ -43,43 +43,32 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		delayTick001++;
 		if(handEn == 1)
 		{
-			if(handStatus == HAND_STATUS_READY)
-			{
-				HAL_GPIO_WritePin(handDir_GPIO_Port, handDir_Pin, handForward);		//cấu hình chân handDir để tiến
-				HAL_GPIO_TogglePin(handPul_GPIO_Port, handPul_Pin);					//tạo xung chân handPul
-				trackingHand++;
-				handElapsedPulses++;												//đếm số xung
-				debug_HAND_STATUS_READY = handElapsedPulses;
-				if (handElapsedPulses >= HAND_PUL_RUNUP)
-				{
-					handEn = 0;														//kết thúc quá trình điều khiển
-					handElapsedPulses = 0;											//reset số xung
-				}
-			}
 			if(handStatus == HAND_STATUS_PUT)
 			{
-				HAL_GPIO_WritePin(handDir_GPIO_Port, handDir_Pin, handForward);		//cấu hình chân handDir để tiến
-				HAL_GPIO_TogglePin(handPul_GPIO_Port, handPul_Pin);					//tạo xung chân handPul
-				trackingHand++;
-				handElapsedPulses++;												//đếm số xung
-				debug_HAND_STATUS_PUT = handElapsedPulses;
-				if (handElapsedPulses >= HAND_PUL_RUNUP2)
+				if(HAL_GPIO_ReadPin(switchOut_GPIO_Port, switchOut_Pin) == GPIO_PIN_RESET)
 				{
-					handEn = 0;														//kết thúc quá trình điều khiển
-					handElapsedPulses = 0;											//reset số xung
+					handEn = 0;
+					HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_SET);	//tắt motor
+				}
+				else
+				{
+					HAL_GPIO_WritePin(handDir_GPIO_Port, handDir_Pin, GPIO_PIN_RESET);	//xoay ra
+					HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_RESET);	//bật motor
+					HAL_GPIO_WritePin(gripper_GPIO_Port, gripper_Pin, GPIO_PIN_RESET);	//đóng gripper
 				}
 			}
-			if(handStatus == HAND_STATUS_WAIT)
+			else if(handStatus == HAND_STATUS_WAIT)
 			{
-				HAL_GPIO_WritePin(handDir_GPIO_Port, handDir_Pin, handBackward);	//cấu hình chân handDir để lùi
-				HAL_GPIO_TogglePin(handPul_GPIO_Port, handPul_Pin);					//tạo xung chân legPul
-				trackingHand++;
-				handElapsedPulses++;												//đếm số xung
-				debug_HAND_STATUS_WAIT = handElapsedPulses;
-				if (handElapsedPulses >= HAND_PUL_END)
+				if(HAL_GPIO_ReadPin(switchIn_GPIO_Port, switchIn_Pin) == GPIO_PIN_RESET)
 				{
-					handEn = 0;														//kết thúc quá trình điều khiển
-					handElapsedPulses = 0;											//reset số xung
+					handEn = 0;
+					HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_SET);	//tắt motor
+				}
+				else
+				{
+					HAL_GPIO_WritePin(handDir_GPIO_Port, handDir_Pin, GPIO_PIN_SET);	//xoay ra
+					HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_RESET);	//bật motor
+					HAL_GPIO_WritePin(gripper_GPIO_Port, gripper_Pin, GPIO_PIN_RESET);	//mở gripper
 				}
 			}
 		}
