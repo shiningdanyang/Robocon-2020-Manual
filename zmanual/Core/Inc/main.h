@@ -64,24 +64,24 @@ void Error_Handler(void);
 #define gripper_GPIO_Port GPIOC
 #define door_Pin GPIO_PIN_5
 #define door_GPIO_Port GPIOC
-#define handPul_Pin GPIO_PIN_12
-#define handPul_GPIO_Port GPIOB
-#define handDir_Pin GPIO_PIN_13
-#define handDir_GPIO_Port GPIOB
 #define handEn_Pin GPIO_PIN_14
 #define handEn_GPIO_Port GPIOB
-#define switchOut_Pin GPIO_PIN_12
-#define switchOut_GPIO_Port GPIOC
+#define handPul_Pin GPIO_PIN_9
+#define handPul_GPIO_Port GPIOA
+#define switchIn_Pin GPIO_PIN_12
+#define switchIn_GPIO_Port GPIOC
 #define motor1Dir_Pin GPIO_PIN_0
 #define motor1Dir_GPIO_Port GPIOD
 #define motor2Dir_Pin GPIO_PIN_1
 #define motor2Dir_GPIO_Port GPIOD
+#define handDir_Pin GPIO_PIN_2
+#define handDir_GPIO_Port GPIOD
 #define motor3Dir_Pin GPIO_PIN_3
 #define motor3Dir_GPIO_Port GPIOD
 #define motor4Dir_Pin GPIO_PIN_4
 #define motor4Dir_GPIO_Port GPIOD
-#define switchIn_Pin GPIO_PIN_8
-#define switchIn_GPIO_Port GPIOB
+#define switchOut_Pin GPIO_PIN_8
+#define switchOut_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

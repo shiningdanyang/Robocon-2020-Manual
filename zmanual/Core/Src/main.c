@@ -85,9 +85,9 @@ static void MX_TIM5_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 #include "DNL_zmanual_Debug.h"
+#include "DNL_zmanual_Hand.h"
 #include "DNL_zmanual_UART.h"
 #include "DNL_zmanual_Motor.h"
-#include "DNL_zmanual_Hand.h"
 #include "DNL_zmanual_PID.h"
 /* USER CODE END 0 */
 
@@ -136,7 +136,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  testPWM();
+//							  testPWM();
 	if(joyRigtHor == 0)
 	{
 
@@ -166,6 +166,11 @@ int main(void)
 		controlMotor4(_motor4Speed);
 		rotateAngle = compassData;
 	}
+//	  HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_RESET);
+//	  HAL_GPIO_WritePin(handDir_GPIO_Port, handDir_Pin, GPIO_PIN_RESET);
+	  trackingMotorDir = HAL_GPIO_ReadPin(handDir_GPIO_Port, handDir_Pin);
+	  trackingMotorPul = HAL_GPIO_ReadPin(handPul_GPIO_Port, handPul_Pin);
+	  tracking++;
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -524,10 +529,14 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, gripper_Pin|door_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, handPul_Pin|handDir_Pin|handEn_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(handEn_GPIO_Port, handEn_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, motor1Dir_Pin|motor2Dir_Pin|motor3Dir_Pin|motor4Dir_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, motor1Dir_Pin|motor2Dir_Pin|handDir_Pin|motor3Dir_Pin 
+                          |motor4Dir_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : gripper_Pin door_Pin */
   GPIO_InitStruct.Pin = gripper_Pin|door_Pin;
@@ -536,31 +545,40 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : handPul_Pin handDir_Pin handEn_Pin */
-  GPIO_InitStruct.Pin = handPul_Pin|handDir_Pin|handEn_Pin;
+  /*Configure GPIO pin : handEn_Pin */
+  GPIO_InitStruct.Pin = handEn_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(handEn_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : switchOut_Pin */
-  GPIO_InitStruct.Pin = switchOut_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(switchOut_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : motor1Dir_Pin motor2Dir_Pin motor3Dir_Pin motor4Dir_Pin */
-  GPIO_InitStruct.Pin = motor1Dir_Pin|motor2Dir_Pin|motor3Dir_Pin|motor4Dir_Pin;
+  /*Configure GPIO pin : handPul_Pin */
+  GPIO_InitStruct.Pin = handPul_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+  HAL_GPIO_Init(handPul_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : switchIn_Pin */
   GPIO_InitStruct.Pin = switchIn_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(switchIn_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : motor1Dir_Pin motor2Dir_Pin handDir_Pin motor3Dir_Pin 
+                           motor4Dir_Pin */
+  GPIO_InitStruct.Pin = motor1Dir_Pin|motor2Dir_Pin|handDir_Pin|motor3Dir_Pin 
+                          |motor4Dir_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : switchOut_Pin */
+  GPIO_InitStruct.Pin = switchOut_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(switchOut_GPIO_Port, &GPIO_InitStruct);
 
 }
 

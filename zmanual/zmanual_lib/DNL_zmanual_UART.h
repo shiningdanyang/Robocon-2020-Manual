@@ -129,12 +129,12 @@ void PS2DMA_ProcessingData(void)
 			btn_Q  		 = (PS2Button >>  2) & 1U;
 			btn_C  		 = (PS2Button >>  1) & 1U;
 			btn_Z  		 = (PS2Button >>  0) & 1U;
-			if(!btn_W)
+			if(!btn_Sta)		//nếu nút W được nhấn
 			{
 				handEn = 1;
 				handStatus = HAND_STATUS_PUT;
 			}
-			else if(!btn_X)
+			else if(!btn_Sel)	//nếu nút X được nhấn
 			{
 				handEn = 1;
 				handStatus = HAND_STATUS_WAIT;
