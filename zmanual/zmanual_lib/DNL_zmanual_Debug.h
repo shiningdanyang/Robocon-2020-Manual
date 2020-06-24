@@ -5,3 +5,4 @@ int trackingSwitchIn;
 int trackingSwitchOut;
 int trackingMotorDir;
 int trackingMotorPul;
+int tracking_btn_A;

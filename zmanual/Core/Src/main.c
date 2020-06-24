@@ -47,8 +47,10 @@ TIM_HandleTypeDef htim8;
 
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_uart4_rx;
 DMA_HandleTypeDef hdma_usart1_rx;
+DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 int tracking;
@@ -78,6 +80,7 @@ static void MX_UART4_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM5_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -125,6 +128,7 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM8_Init();
   MX_TIM5_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   peripheralUART_Init();
   peripheralPWM_Init();
@@ -139,7 +143,6 @@ int main(void)
 //							  testPWM();
 	if(joyRigtHor == 0)
 	{
-
 		PIDyaw(compassData, rotateAngle);
 		_dir = atan2(joyLeftHor, -joyLeftVer);
 		_controlSpeed = sqrt(joyLeftHor*joyLeftHor + joyLeftVer*joyLeftVer);
@@ -170,6 +173,8 @@ int main(void)
 //	  HAL_GPIO_WritePin(handDir_GPIO_Port, handDir_Pin, GPIO_PIN_RESET);
 	  trackingMotorDir = HAL_GPIO_ReadPin(handDir_GPIO_Port, handDir_Pin);
 	  trackingMotorPul = HAL_GPIO_ReadPin(handPul_GPIO_Port, handPul_Pin);
+	  trackingSwitchIn = HAL_GPIO_ReadPin(switchIn_GPIO_Port, switchIn_Pin);
+	  trackingSwitchOut = HAL_GPIO_ReadPin(switchOut_GPIO_Port, switchOut_Pin);
 	  tracking++;
     /* USER CODE END WHILE */
 
@@ -489,6 +494,39 @@ static void MX_USART1_UART_Init(void)
 
 }
 
+/**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
+
 /** 
   * Enable DMA controller clock
   */
@@ -503,6 +541,9 @@ static void MX_DMA_Init(void)
   /* DMA1_Stream2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
+  /* DMA1_Stream6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
   /* DMA2_Stream2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
@@ -520,9 +561,9 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
@@ -559,11 +600,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(handPul_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : switchIn_Pin */
-  GPIO_InitStruct.Pin = switchIn_Pin;
+  /*Configure GPIO pin : switchOut_Pin */
+  GPIO_InitStruct.Pin = switchOut_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(switchIn_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(switchOut_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : motor1Dir_Pin motor2Dir_Pin handDir_Pin motor3Dir_Pin 
                            motor4Dir_Pin */
@@ -574,11 +615,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : switchOut_Pin */
-  GPIO_InitStruct.Pin = switchOut_Pin;
+  /*Configure GPIO pin : switchIn_Pin */
+  GPIO_InitStruct.Pin = switchIn_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(switchOut_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(switchIn_GPIO_Port, &GPIO_InitStruct);
 
 }
 

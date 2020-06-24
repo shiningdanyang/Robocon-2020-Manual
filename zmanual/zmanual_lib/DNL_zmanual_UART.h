@@ -18,14 +18,15 @@ int16_t joyLeftVer;
 int16_t joyRigtHor;
 int16_t joyRigtVer;
 //char* controlData;
-int16_t joyLeftMidVer = 128;
-int16_t joyLeftMidHor = 128;
-int16_t joyRigtMidVer = 128;
-int16_t joyRigtMidHor = 128;
+int16_t joyLeftMidVer = 123;
+int16_t joyLeftMidHor = 123;
+int16_t joyRigtMidVer = 123;
+int16_t joyRigtMidHor = 123;
 uint8_t btn_leftLeft, btn_leftRigt, btn_leftUp, btn_leftDown;
 uint8_t btn_Sta, btn_joyLeft, btn_joyRigt, btn_Sel;
 uint8_t btn_A, btn_X, btn_D, btn_W, btn_E, btn_Q, btn_C, btn_Z;
-
+uint8_t btn_E_preStatus = 0;
+uint8_t btn_A_preStatus = 0;
 #define compass huart4
 uint8_t compassTxPacket[9] = "compassTx";
 uint8_t compassRxPacket[9];
@@ -43,6 +44,10 @@ void wait4CompassTx(void);
 void wait4CompassRx(void);
 void compassDeInit(void);
 void compassInit(void);
+
+#define semiAuto huart2
+uint8_t semiAutoTxPacket[2] = "DA";
+
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -129,15 +134,47 @@ void PS2DMA_ProcessingData(void)
 			btn_Q  		 = (PS2Button >>  2) & 1U;
 			btn_C  		 = (PS2Button >>  1) & 1U;
 			btn_Z  		 = (PS2Button >>  0) & 1U;
-			if(!btn_Sta)		//nếu nút W được nhấn
+			if(!btn_W)		//nếu nút W được nhấn
 			{
-				handEn = 1;
-				handStatus = HAND_STATUS_PUT;
+				if(HAL_GPIO_ReadPin(door_GPIO_Port, door_Pin)==GPIO_PIN_RESET)
+				{
+					handEn = 1;
+					handStatus = HAND_STATUS_PUT;
+				}
 			}
-			else if(!btn_Sel)	//nếu nút X được nhấn
+			else if(!btn_X)	//nếu nút X được nhấn
 			{
 				handEn = 1;
 				handStatus = HAND_STATUS_WAIT;
+			}
+			if(btn_A==0)	//nếu nút A được nhấn
+			{
+				if(btn_A_preStatus == 0)
+				{
+					semiAutoTxPacket[0] = 'D';
+					HAL_UART_Transmit_IT(&semiAuto, semiAutoTxPacket, 1);
+				}
+				btn_A_preStatus = 1;
+			}
+			else
+			{
+//				tracking_btn_A++;
+				semiAutoTxPacket[0] = 'A';
+				HAL_UART_Transmit_IT(&semiAuto, semiAutoTxPacket, 1);
+				btn_A_preStatus = 0;
+			}
+			if(!btn_E)	//nếu nút E được nhấn
+			{
+				if(btn_E_preStatus == 0)
+				{
+					HAL_GPIO_TogglePin(door_GPIO_Port, door_Pin);
+					HAL_GPIO_TogglePin(gripper_GPIO_Port, gripper_Pin);
+				}
+				btn_E_preStatus = 1;
+			}
+			else
+			{
+				btn_E_preStatus = 0;
 			}
 		}
 	}

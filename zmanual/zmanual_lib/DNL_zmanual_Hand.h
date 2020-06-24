@@ -43,6 +43,8 @@ void handControl_Init(void)
 	  {
 		HAL_GPIO_WritePin(handDir_GPIO_Port, handDir_Pin, HAND_DIR_IN);
 		HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_RESET);
+		trackingSwitchIn = HAL_GPIO_ReadPin(switchIn_GPIO_Port, switchIn_Pin);
+			  trackingSwitchOut = HAL_GPIO_ReadPin(switchOut_GPIO_Port, switchOut_Pin);
 	  }
 	  HAL_GPIO_WritePin(handDir_GPIO_Port, handDir_Pin, GPIO_PIN_SET);
 	  HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_SET);	//tắt động cơ
@@ -68,15 +70,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				{
 					handEn = 0;
 					HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_SET);	//tắt motor
-					HAL_GPIO_WritePin(gripper_GPIO_Port, gripper_Pin, GRIPPER_OPEN);	//mở gripper
-					HAL_GPIO_WritePin(door_GPIO_Port, door_Pin, DOOR_OPEN);				//mở cửa
+//					HAL_GPIO_WritePin(gripper_GPIO_Port, gripper_Pin, GRIPPER_OPEN);	//mở gripper
+//					HAL_GPIO_WritePin(door_GPIO_Port, door_Pin, DOOR_OPEN);				//mở cửa
 				}
 				else//(HAL_GPIO_ReadPin(switchOut_GPIO_Port, switchOut_Pin) == GPIO_PIN_SET)	//nếu chưa chạm limSwit ngoài
 				{
 					HAL_GPIO_WritePin(handDir_GPIO_Port, handDir_Pin, GPIO_PIN_RESET);	//xoay ra
 					HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_RESET);	//bật motor
-					HAL_GPIO_WritePin(gripper_GPIO_Port, gripper_Pin, GPIO_PIN_RESET);	//đóng gripper
-					HAL_GPIO_WritePin(door_GPIO_Port, door_Pin, DOOR_OPEN);				//mở cửa
+//					HAL_GPIO_WritePin(gripper_GPIO_Port, gripper_Pin, GPIO_PIN_RESET);	//đóng gripper
+//					HAL_GPIO_WritePin(door_GPIO_Port, door_Pin, DOOR_OPEN);				//mở cửa
 				}
 			}
 			else if(handStatus == HAND_STATUS_WAIT)
@@ -85,15 +87,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				{
 					handEn = 0;
 					HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_SET);	//tắt motor
-					HAL_GPIO_WritePin(gripper_GPIO_Port, gripper_Pin, GRIPPER_OPEN);	//mở gripper
-					HAL_GPIO_WritePin(door_GPIO_Port, door_Pin, DOOR_CLOSE);			//đóng cửa
+//					HAL_GPIO_WritePin(gripper_GPIO_Port, gripper_Pin, GRIPPER_OPEN);	//mở gripper
+//					HAL_GPIO_WritePin(door_GPIO_Port, door_Pin, DOOR_CLOSE);			//đóng cửa
 				}
 				else//(HAL_GPIO_ReadPin(switchIn_GPIO_Port, switchIn_Pin) == GPIO_PIN_SET)	//nếu chưa chạm limSwit trong
 				{
 					HAL_GPIO_WritePin(handDir_GPIO_Port, handDir_Pin, GPIO_PIN_SET);	//xoay vào
 					HAL_GPIO_WritePin(handPul_GPIO_Port, handPul_Pin, GPIO_PIN_RESET);	//bật motor
-					HAL_GPIO_WritePin(gripper_GPIO_Port, gripper_Pin, GRIPPER_OPEN);	//mở gripper
-					HAL_GPIO_WritePin(door_GPIO_Port, door_Pin, DOOR_OPEN);				//mở cửa
+//					HAL_GPIO_WritePin(gripper_GPIO_Port, gripper_Pin, GRIPPER_OPEN);	//mở gripper
+//					HAL_GPIO_WritePin(door_GPIO_Port, door_Pin, DOOR_OPEN);				//mở cửa
 				}
 			}
 		}
