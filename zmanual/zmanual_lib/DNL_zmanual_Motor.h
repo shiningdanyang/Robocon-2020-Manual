@@ -6,7 +6,7 @@ int16_t joyLeftVer;
 int16_t joyRigtHor;
 int16_t joyRigtVer;
 
-double factorSpeed = 2.5;
+double factorSpeed = 2.7;//cux == 2.5
 double factorYawPID = 1.5;
 double angle;
 double speed;
